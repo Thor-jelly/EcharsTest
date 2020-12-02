@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="./base/echarts.min.js"></script>
+    <style type="text/css">
+                    @font-face {
+                        font-family: "gt_walsheim_bold";
+                        src: url("file:///android_asset/fonts/gt_walsheim_bold.ttf")
+                    }
+
+                    * {
+                        margin: 0;
+                        padding: 0;
+                    }
+     </style>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 100%; height: 260px;"></div>
+<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        function loadPieEcharts(valueStr, unitStr){
+            // 指定图表的配置项和数据
+            var option = {
+                color: ['#ff9B46','#ffd400','#c4dd59','#4ab35b','#0383a4'],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}' + unitStr + ' ({d}%)',
+                    extraCssText: 'white-space:pre-wrap;',
+                    title: {
+                       show: false
+                    },
+                    position: function(point, params, dom, rect, size) {
+                                     // 鼠标坐标和提示框位置的参考坐标系是：以外层div的左上角那一点为原点，x轴向右，y轴向下
+                                     // 提示框位置
+                                     var x = 0; // x坐标位置
+                                     var y = 0; // y坐标位置
+
+                                     // 当前鼠标位置
+                                     var pointX = point[0];
+                                     var pointY = point[1];
+
+                                     // 外层div大小
+                                     var viewWidth = size.viewSize[0];
+                                     var viewHeight = size.viewSize[1];
+                                     //console.log(viewWidth)
+                                     //console.log("----------------"+size.contentSize)
+
+                                     // 提示框大小
+                                     // var boxWidth = size.contentSize[0];
+                                     // var boxHeight = size.contentSize[1];
+
+                                     if (pointX > viewWidth / 2) {
+                                         return {
+                                             top:'25%',
+                                             left: 0
+                                         }
+                                     } else {
+                                         return {
+                                             top: '25%',
+                                             right: 0
+                                         }
+                                     }
+                                 },
+                },
+                series: [
+                    {
+                        name: 'seriesName',
+                        type: 'pie',
+                        minAngle:10,//最小比例显示，解决最大值最小值差距过大导致最小值的比例显示不出来
+                        avoidLabelOverlap: true,   //是否启用防止标签重叠策略
+                        //center: ['50%', '30%'],
+                        radius: ['25%', '40%'],
+                        label: {
+                            //formatter:[
+                            //    '{b|{b}}',
+                            //    '{hr|}',
+                            //    '{c|{c}}'
+                            //].join('\n'),
+                            //formatter: '{b|{b}}\n{hr|}\n{c|{c}}',
+                            formatter: function(p){
+                                var s = p.name;
+                                if(p.name.length >8){
+                                    s = p.name.substring(0,8) +'...';
+                                }
+                                return '{b|'+s+'}\n{hr|}\n'+'{c|'+p.value + unitStr +'}';
+                            },
+                           margin: 1,
+                           distanceToLabelLine: 0,
+                        //labelLine: {
+                        //    normal: {
+                        //        length: 30,// 改变标示线的长度
+                        //        length2: 80,
+                        //        lineStyle: {
+                        //            color: 'white',// 改变标示线的颜色
+                        //        },
+                        //    },
+                            rich: {
+                                hr: {
+                                    borderColor: 'auto',
+                                    width: '100%',
+                                    borderWidth: 1,
+                                    height: 0
+                                },
+                                b: {
+                                    fontSize: 13,
+                                    padding:[5,0,0,0]
+                                },
+                                c: {
+                                    fontSize: 13,
+                                    color: '#23386B',
+                                    padding:[0,0,5,0]
+                                }
+                            }
+                        },
+                        data: valueStr
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option)
+        }
+
+        //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
+        window.addEventListener('resize', function () {
+              myChart.resize()
+        });
+
+</script>
+</body>
+</html>

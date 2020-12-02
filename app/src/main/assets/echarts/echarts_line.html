@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="./base/echarts.min.js"></script>
+
+    <style type="text/css">
+                    @font-face {
+                        font-family: "gt_walsheim_bold";
+                        src: url("file:///android_asset/fonts/gt_walsheim_bold.ttf")
+                    }
+
+                    * {
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    #yelo_tooltip_title {
+                        color: white;
+                        font-size: 0.75rem;
+                        margin-bottom: 4px;
+                    }
+
+                    .yelo_tooltip_item {
+                        display: flex;
+                        justify-content: space-between;
+                    }
+
+                    .yelo_tooltip_item_key {
+                        font-size: 0.625rem;
+                        font-weight: bold;
+                    }
+
+                    .yelo_tooltip_item_key>span {
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin-right: 4px;
+                        border-radius: 8px;
+                        width: 8px;
+                        height: 8px;
+                    }
+
+                    .yelo_tooltip_item_value {
+                        font-size: 0.625rem;
+                    }
+
+                    .yelo_tooltip_item_value>span {
+                        font-size: 0.75rem;
+                        font-family: "gt_walsheim_bold";
+                    }
+    </style>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: '100%';height: 260px;"></div>
+<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        function loadLineEcharts(lineX, stockOut, stockIn){
+                var option = {
+                    //title: {
+                    //    text: '折线图堆叠'
+                    //},
+                    color: ['#FF7721', '#638EE7'],
+                    tooltip: {
+                        trigger: 'axis',
+                        extraCssText:'width:125px;height:68px;',
+                        formatter: function(p){
+                            //console.log(p);
+
+                            const stockIn = p[0];
+                            const stockOut = p[1];
+
+                            const may_day = stockIn['axisValue'].split('/');
+                            const title = '<p id="yelo_tooltip_title">' + may_day[1] + '月' + may_day[0] + '日' + '</p >';
+
+                            function getItem(stock) {
+                                const marker = '<span style="background-color:' + stock['color'] + ';"></span>';
+
+                                return [
+                                    '<div class="yelo_tooltip_item">',
+                                    '<p class="yelo_tooltip_item_key">' + marker + stock['seriesName'] + '</p >',
+                                    '<p class="yelo_tooltip_item_value"><span>' + stock['data'] + '</span>吨</p >',
+                                    '</div>',
+                                ].join('')
+                            }
+
+                            return [title, getItem(stockIn), getItem(stockOut)].join('');
+                        },
+                        backgroundColor: 'rgba(0,0,0,0.8)',  // 提示背景颜色，默认为透明度为0.7的黑色
+                        borderColor: '#333',            // 提示边框颜色
+                        borderRadius: 0,                // 提示边框圆角，单位px，默认为4
+                        borderWidth: 0,                // 提示边框线宽，单位px，默认为0（无边框）
+                        //padding: 5,                   // 提示内边距，单位px，默认各方向内边距为5，
+                    },
+                    legend: {
+                         // orient 设置布局方式，默认水平布局，可选值：'horizontal'（水平） ¦ 'vertical'（垂直）
+                         orient: 'horizontal',
+                         // x 设置水平安放位置，默认全图居中，可选值：'center' ¦ 'left' ¦ 'right' ¦ {number}（x坐标，单位px）
+                         x: 'center',
+                         // y 设置垂直安放位置，默认全图顶端，可选值：'top' ¦ 'bottom' ¦ 'center' ¦ {number}（y坐标，单位px）
+                         y: 'bottom',
+                        //data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                        icon: 'circle',
+                        itemWidth: 8,
+                        textStyle: {
+                            color: '#23386B',
+                            fontSize: 13
+                        },
+                        data: ['出库', '入库']
+                    },
+                    grid: {
+                        top:'2%',
+                        left: '3%',
+                        right: '3%',
+                        bottom: '15%',
+                        containLabel: true
+                    },
+                    //toolbox: {
+                    //    feature: {
+                    //        saveAsImage: {}
+                    //    }
+                    //},
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        //splitLine: {
+                        //    show: false // 是否显示分隔线  默认为false 不显示
+                        //},
+                        axisLabel: {
+                            show: true, // 是否显示刻度标签 默认为true 显示
+                            textStyle: { // 改变刻度标签的样式
+                                color: '#8090B4',
+                                fontSize: '11'
+                            }
+                        },
+                        // 坐标轴刻度相关设置
+                        //axisTick: {
+                        //    show: true, // 是否显示坐标轴刻度 默认为true 显示
+                        //    alignWithLabel: true //坐标轴刻度与标签对齐  如果不设置 默认坐标刻度与刻度标签不对齐
+                        //},
+                        axisLine: {
+                            // 改变坐标轴样式
+                            lineStyle: {
+                                color: '#DCE1ED',
+                                width: 1
+                            }
+                        },
+                        data: lineX
+                    },
+                    yAxis: {
+                        type: 'value',
+                         splitLine: { // 分隔线样式
+                            lineStyle: {
+                                type: 'dashed'  // 改变分隔线样式为虚线 默认是直线
+                            }
+                        },
+                        // 坐标轴刻度相关设置
+                        axisTick: {
+                            show: false,
+                        },
+                        axisLabel: {
+                            show: true, // 是否显示刻度标签 默认为true 显示
+                            textStyle: { // 改变刻度标签的样式
+                                color: '#8090B4',
+                                fontSize: '11'
+                            }
+                        },
+                        axisLine: {
+                            // 改变坐标轴样式
+                            lineStyle: {
+                                color: '#DCE1ED',
+                                width: 1
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: '出库',
+                            type: 'line',
+                            //stack: '总量',
+                            //symbol: 'circle',  // 拐点设置为实心圆点 默认是空心圆点 ECharts 提供的标记类型包括 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'  可以通过 'image://url' 设置为图片，其中 URL 为图片的链接
+                            //symbolSize: 4, // 拐点圆的大小
+                            //color: ['red'], // 折线条的颜色
+                            //smooth: false, // 是否显示平滑曲线  默认为false 如果是 boolean 类型，则表示是否开启平滑处理。如果是 number 类型（取值范围 0 到 1），表示平滑程度，越小表示越接近折线段，反之则反。设为 true 时相当于设为 0.5
+                            //itemStyle: {
+                            //    normal: {
+                            //        lineStyle: {
+                            //            width: 2,
+                            //            type: 'dotted'  //'dotted'虚线 'solid'实线
+                            //        }
+                            //    }
+                            //}
+                            data: stockOut
+                        },
+                        {
+                            name: '入库',
+                            type: 'line',
+                            //stack: '总量',
+                            data: stockIn
+                        }
+                    ]
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option)
+        }
+
+        //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
+        window.addEventListener('resize', function () {
+              myChart.resize()
+        });
+</script>
+</body>
+</html>
